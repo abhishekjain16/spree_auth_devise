@@ -8,8 +8,7 @@ Spree::CheckoutController.class_eval do
   end
 
   def update_registration
-    current_order.update_column(:email, params[:order][:email])
-    if EmailValidator.new(:attributes => current_order.attributes).valid?(current_order.email)
+    if valid_email? && current_order.update_column(:email, params[:order][:email])
       redirect_to checkout_path
     else
       flash[:registration_error] = t(:email_is_invalid, :scope => [:errors, :messages])
@@ -25,6 +24,10 @@ Spree::CheckoutController.class_eval do
       else
         {}
       end
+    end
+
+    def valid_email?
+      EmailValidator.new(:attributes => current_order.attributes).valid?(params[:order][:email])
     end
 
     def skip_state_validation?
